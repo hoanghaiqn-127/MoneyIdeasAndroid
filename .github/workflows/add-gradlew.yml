@@ -3,28 +3,41 @@ name: Generate Gradle Wrapper
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write  # Cho phép push file mới
+
 jobs:
   generate-wrapper:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup JDK
+      - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
-      - name: Install Gradle and create wrapper
+      - name: Create basic Gradle Wrapper manually
         run: |
-          gradle wrapper
-          ls -al
-          
-      - name: Commit and push wrapper
+          mkdir -p gradle/wrapper
+          cat <<EOF > gradle/wrapper/gradle-wrapper.properties
+          distributionBase=GRADLE_USER_HOME
+          distributionPath=wrapper/dists
+          zipStoreBase=GRADLE_USER_HOME
+          zipStorePath=wrapper/dists
+          distributionUrl=https\://services.gradle.org/distributions/gradle-8.1.1-bin.zip
+          EOF
+          curl -s https://raw.githubusercontent.com/gradle/gradle/v8.1.1/subprojects/wrapper/src/main/java/org/gradle/wrapper/GradleWrapperMain.java -o gradlew
+          chmod +x gradlew
+          echo "Wrapper created manually."
+
+      - name: Commit and push Gradle Wrapper
         run: |
-          git config user.name "hoanghaiqn-127"
-          git config user.email "you@example.com"
-          git add gradlew gradlew.bat gradle/wrapper/
-          git commit -m "Add gradle wrapper automatically"
+          git config --global user.name "hoanghaiqn-127"
+          git config --global user.email "you@example.com"
+          git add gradlew gradle/wrapper/
+          git commit -m "Manually add Gradle wrapper files" || echo "No changes to commit"
           git push
