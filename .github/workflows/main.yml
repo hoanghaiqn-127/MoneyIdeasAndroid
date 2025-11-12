@@ -6,24 +6,27 @@ on:
 jobs:
   generate-wrapper:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Java
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
-      - name: Generate Gradle wrapper
-        run: |
-          gradle wrapper
+      - name: Install Gradle CLI
+        run: sudo apt-get install -y gradle
 
-      - name: Commit and push wrapper
+      - name: Generate Gradle wrapper
+        run: gradle wrapper
+
+      - name: Commit and push wrapper files
         run: |
           git config user.name "hoanghaiqn-127"
           git config user.email "you@example.com"
           git add gradlew gradlew.bat gradle/wrapper/
-          git commit -m "Add gradlew"
+          git commit -m "Add gradlew files"
           git push
